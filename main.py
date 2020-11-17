@@ -1,9 +1,19 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, json
 import sys
 
 app = Flask(__name__)
 
 users_list = ["Serjio", "Nika", "Artur", "Julia", "Daniil", "Svetlana"]
+
+
+def write_json(data, filename="data/users.json"):
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+def print_json():
+    records = json.load(open("users.json"))
+    return records
 
 
 @app.route("/")
@@ -20,6 +30,12 @@ def users():
 @app.route("/v1/users/", methods=['POST'])
 def user_add():
     message = "Добавлен новый пользователь %s" % request.form["name"]
+    with open("data/users.json") as json_file:
+        dat = json.load(json_file)
+        temp = dat["users"]
+        y = {"username": request.form["name"]}
+        temp.append(y)
+        write_json(dat)
     return jsonify({"result": message})
 
 
