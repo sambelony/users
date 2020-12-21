@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Add user wtform</title>
+    </head>
+    <body>
+        <form method="POST" action="{{ url_for('user_add') }}">
+            {{ form.csrf_token }}
+            {{ form.username.label}}
+            {{ form.username }}
+            <ul>
+                {% for error in form.username.errors %}
+                <li style="color:red;">{{ error }}</li>
+                {% endfor %}
+            </ul>
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>

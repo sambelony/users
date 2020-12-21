@@ -1,9 +1,13 @@
 import os.path
 import sys
 
-from flask import Flask, render_template, request, jsonify, json
+from flask import Flask, render_template, jsonify, json
+from wtforms import StringField
+from flask_wtf import FlaskForm
+from wtforms.validators import InputRequired, Length
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'THEKEY'
 
 storage_file = "data/users.json"
 
@@ -84,14 +88,19 @@ def users():
 
 @app.route("/v1/users/", methods=['POST'])
 def user_add():
-    # Добавить пользователя в систему хранения пользователей.
-    # Вывести сообщение о результате выполнения.
+    form = UserAddForm()
 
-    user = {"username": request.form["name"]}
-    result = user_save(user)
+    if form.validate_on_submit() == False:
+        return {
+            "result": False,
+            "message": f'НЕ добавлен пользователь с именем {form.username.data}',
+            "errors": list(form.errors.items())
+        }
 
+    user = {"username": form.username.data.strip()}
+    user_save(user)
     return {
-        "result": result,
+        "result": True,
         "message": "Добавлен новый пользователь %s" % user['username']
     }
 
@@ -99,6 +108,29 @@ def user_add():
 @app.route("/form/user-add/")
 def page_user_add():
     return render_template("user_add_form.html")
+
+
+@app.route("/wtf/user-add/", methods=['GET', 'POST'])
+def wt_user_add():
+    form = UserAddForm()
+
+    return render_template("user_add_wtform.html", form=form)
+
+
+def my_strip_filter(value):
+    if value is not None and hasattr(value, 'strip'):
+        return value.strip()
+    return value
+
+
+class UserAddForm(FlaskForm):
+    class Meta:
+        def bind_field(self, form, unbound_field, options):
+            filters = unbound_field.kwargs.get('filters', [])
+            filters.append(my_strip_filter)
+            return unbound_field.bind(form=form, filters=filters, **options)
+
+    username = StringField('Name', validators=[InputRequired("Пожалуйста, введите имя пользователя"), Length(min=2, max=32, message='Имя не может быть менее 1 символа и длиннее 32 символов')])
 
 
 if __name__ == "__main__":
