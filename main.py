@@ -7,7 +7,7 @@ from flask_wtf import FlaskForm
 from wtforms.validators import InputRequired, Length
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'THEKEY'
+app.config['SECRET_KEY'] = 'MYSECRETPHRASE'
 
 storage_file = "data/users.json"
 
@@ -105,13 +105,8 @@ def user_add():
     }
 
 
-@app.route("/form/user-add/")
+@app.route("/form/user-add/", methods=['GET', 'POST'])
 def page_user_add():
-    return render_template("user_add_form.html")
-
-
-@app.route("/wtf/user-add/", methods=['GET', 'POST'])
-def wt_user_add():
     form = UserAddForm()
 
     return render_template("user_add_wtform.html", form=form)
