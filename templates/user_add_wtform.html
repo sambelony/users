@@ -5,7 +5,7 @@
         <title>Add user wtform</title>
     </head>
     <body>
-        <form method="POST" action="{{ url_for('wt_user_add') }}">
+        <form method="POST" action="{{ url_for('user_add') }}">
             {{ form.csrf_token }}
             {{ form.username.label}}
             {{ form.username }}
